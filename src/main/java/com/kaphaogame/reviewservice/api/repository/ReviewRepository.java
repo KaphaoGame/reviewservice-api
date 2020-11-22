@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.kaphaogame.reviewservice.api.FirebaseInitializer;
 import com.kaphaogame.reviewservice.api.model.Review;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ public class ReviewRepository {
         return reviewRegistering;
     }
     
-    public void deleteComment(Review review) {
-        db.getFirestore().collection("Comment").document(review.getGameTag()+"_"+review.getUsername()).delete();
+    public void deleteComment(String gameTagAndUsername) {
+        db.getFirestore().collection("Comment").document(gameTagAndUsername).delete();
     }
 
     public List<Review> getAllCommentsByGameTag(String gameTag) throws ExecutionException, InterruptedException {

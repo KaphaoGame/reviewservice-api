@@ -31,9 +31,9 @@ public class ReviewRestController {
         return reviewRepository.editComment(review);
     }
 
-    @DeleteMapping("/{gameTag}_{username}")
-    public void deleteReview(Review review) {
-        reviewRepository.deleteComment(review);
+    @PostMapping("/{gameTagAndUsername}")
+    public void deleteReview(@PathVariable String gameTagAndUsername) {
+        reviewRepository.deleteComment(gameTagAndUsername);
     }
 
     @GetMapping("/{gameTag}")
