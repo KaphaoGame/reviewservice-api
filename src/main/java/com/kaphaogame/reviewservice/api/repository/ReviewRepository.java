@@ -15,21 +15,17 @@ import java.util.concurrent.ExecutionException;
 public class ReviewRepository {
     private FirebaseInitializer db;
 
-    private List<Review> reviewList;
-
-    public ReviewRepository() throws IOException, ExecutionException, InterruptedException {
-        reviewList = new ArrayList<>();
+    public ReviewRepository() throws IOException {
         db = new FirebaseInitializer();
+    }
 
-        CollectionReference review = db.getFirestore().collection("Comment");
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = review.get();
+    public List<Review> getAllComments() throws ExecutionException, InterruptedException {
+        List<Review> reviewList = new ArrayList<>();
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = db.getFirestore().collection("Comment").get();
         for(DocumentSnapshot documentSnapshot: querySnapshotApiFuture.get().getDocuments()){
             Review reviewQuery = documentSnapshot.toObject(Review.class);
             reviewList.add(reviewQuery);
         }
-    }
-
-    public List<Review> getAllComments() {
         return reviewList;
     }
 
@@ -37,13 +33,25 @@ public class ReviewRepository {
         Review reviewRegistering = new Review(review.getUsername(), review.getGameName(), review.getGameTag(), review.getStory()
                                                 ,review.getGameplay(), review.getGraphic(), review.getPerformance(), review.getSound()
                                                 ,review.getComments());
-        ApiFuture<DocumentReference> resultApiFuture = db.getFirestore().collection("Comment").add(reviewRegistering);
-        reviewList.add(reviewRegistering);
+        ApiFuture<WriteResult> resultApiFuture = db.getFirestore().collection("Comment").document(reviewRegistering.getGameTag()+"_"+reviewRegistering.getUsername()).set(reviewRegistering);
         return reviewRegistering;
     }
 
-    public List<Review> getAllCommentsByGameTag(String gameTag) {
+    public Review editComment(Review review) {
+        Review reviewRegistering = new Review(review.getUsername(), review.getGameName(), review.getGameTag(), review.getStory()
+                ,review.getGameplay(), review.getGraphic(), review.getPerformance(), review.getSound()
+                ,review.getComments());
+        ApiFuture<WriteResult> resultApiFuture = db.getFirestore().collection("Comment").document(reviewRegistering.getGameTag()+"_"+reviewRegistering.getUsername()).set(reviewRegistering);
+        return reviewRegistering;
+    }
+    
+    public void deleteComment(Review review) {
+        db.getFirestore().collection("Comment").document(review.getGameTag()+"_"+review.getUsername()).delete();
+    }
+
+    public List<Review> getAllCommentsByGameTag(String gameTag) throws ExecutionException, InterruptedException {
         List<Review> comments = new ArrayList<>();
+        List<Review> reviewList = getAllComments();
         for (Review comment: reviewList) {
             if (comment.getGameTag().equals(gameTag)){
                 comments.add(comment);
